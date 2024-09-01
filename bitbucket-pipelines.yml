@@ -71,6 +71,10 @@ pipelines:
           caches:
             - node
           script:
+            - echo "Installing chromium..."
+            - apt-get update
+            - apt-get install -y chromium
+            - export CHROME_BIN=/usr/bin/chromium
             - echo "Running tests..."
             - npx ng test --watch=false
 
@@ -125,6 +129,10 @@ pipelines:
           caches:
             - node
           script:
+            - echo "Installing chromium..."
+            - apt-get update
+            - apt-get install -y chromium
+            - export CHROME_BIN=/usr/bin/chromium
             - echo "Running tests..."
             - npx ng test --watch=false
 
@@ -185,6 +193,10 @@ pipelines:
           caches:
             - node
           script:
+            - echo "Installing chromium..."
+            - apt-get update
+            - apt-get install -y chromium
+            - export CHROME_BIN=/usr/bin/chromium
             - echo "Running tests..."
             - npx ng test --watch=false
 
