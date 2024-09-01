@@ -27,7 +27,7 @@ pipelines:
           # Check if the source branch of the PR is 'develop' when merging into 'main'
           name: Check PR Source for Main
           script:
-            - echo "Checking if PR source is 'develop'..."
+            - echo "Checking if PR target is 'main'..."
             - |
               # Ensure the destination branch is 'main' and the source branch is 'develop'
               if [ "$BITBUCKET_PR_DESTINATION_BRANCH" = "main" ] && [ "$BITBUCKET_BRANCH" != "develop" ]; then
