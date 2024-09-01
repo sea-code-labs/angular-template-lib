@@ -142,7 +142,9 @@ pipelines:
             - echo "Latest merge commit hash -> $merged_commit"
             - parent_commits=$(git log --pretty=format:"%P" -1 $merged_commit)
             - echo "Parent commits -> $parent_commits"
-            - merged_branch=$(git branch -r --contains $(echo $parent_commits | cut -d ' ' -f 2) | head -n 1 | sed 's/origin\///')
+            - second_parent_commit=$(echo $parent_commits | cut -d ' ' -f 2)
+            - echo "Second parent commit -> $second_parent_commit"
+            - merged_branch=$(git branch -r --contains $second_parent_commit | sed 's/origin\///' | head -n 1)
             - echo "Branch that was merged into develop -> $merged_branch"
 
 #      - step:
