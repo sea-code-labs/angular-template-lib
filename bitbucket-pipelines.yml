@@ -166,15 +166,20 @@ pipelines:
           clone:
             enabled: true
           script:
-            - echo "Fetching all branches..."
+            - echo "Fetching branches..."
+            - apt-get update
+            - apt-get install -y git
             - git fetch --all
+            - git checkout develop
+            - git pull origin develop
             - echo "Listing all merged feature branches..."
             - |
-              for branch in $(git branch -r --merged origin/develop | grep 'origin/feature-' | sed 's/origin\///'); do
-                echo "Deleting merged branch: $branch"
-                git push origin --delete "$branch" || echo "Failed to delete $branch"
+              # Find merged feature branches and delete them
+              merged_branches=$(git branch -r --merged develop | grep 'origin/feature-' | sed 's/origin\///')
+              for branch in $merged_branches; do
+                echo "Deleting remote branch: $branch"
+                git push origin --delete "$branch"
               done
-            - echo "Feature branches merged into develop have been deleted."
 
       - step:
           # Sync the Bitbucket repository with the GitHub mirror
