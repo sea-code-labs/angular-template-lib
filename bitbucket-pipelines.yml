@@ -216,7 +216,8 @@ pipelines:
             - git fetch origin
             - |
               # Find branches merged into develop
-              merged_branches=$(git branch -r --merged origin/develop | grep 'origin/feature-' | sed 's/origin\///')
+              develop_commit=$(git rev-parse origin/develop)
+              merged_branches=$(git branch -r --merged "$develop_commit" | grep 'origin/feature-' | sed 's/origin\///')
               echo "Merged feature branches:"
               echo "$merged_branches"
 
