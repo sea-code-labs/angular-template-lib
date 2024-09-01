@@ -138,7 +138,7 @@ pipelines:
           script:
             - echo "Checking merged branch..."
             - git fetch --prune
-            - merged_branch=$(git log --merges -1 --pretty=format:"%P" | awk '{print $2}')
+            - merged_branch=$(git log --merges -1 --pretty=format:"%H")
             - echo "Merged branch -> $merged_branch"
 #      - step:
 #          name: Env
