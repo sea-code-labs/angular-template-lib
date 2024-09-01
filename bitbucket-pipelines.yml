@@ -163,23 +163,26 @@ pipelines:
       - step:
           name: Find Most Recently Merged Branch
           script:
-            - apt-get update && apt-get install -y git
             - git fetch --all
-            - |
+              - |
+              echo "Current branch is -> $BITBUCKET_BRANCH"
               recent_merge_commit=$(git log --merges $BITBUCKET_BRANCH -n 1 --pretty=format:"%H")
+
               if [ -z "$recent_merge_commit" ]; then
-                echo "No merge commits found in $BITBUCKET_BRANCH."
-                exit 1
+              echo "No merge commits found in $BITBUCKET_BRANCH."
+              exit 1
               fi
 
-              merged_branch=$(git show -s --pretty=format:"%b" $recent_merge_commit | grep "Merge branch '" | sed -e "s/Merge branch '\(.*\)' into .*/\1/")
+              echo "Most recent merge commit -> $recent_merge_commit"
+              commit_message=$(git show -s --pretty=format:"%b" $recent_merge_commit)
+              echo "Commit message -> $commit_message"
+              merged_branch=$(echo "$commit_message" | grep -oP "Merge branch '\K[^']+")
 
               if [ -z "$merged_branch" ]; then
-                echo "Could not determine the merged branch."
-                exit 1
+              echo "Could not determine the merged branch from the commit message."
+              exit 1
               fi
-
-              echo "Most recently merged branch into $BITBUCKET_BRANCH": $merged_branch"
+              echo "Most recently merged branch into $BITBUCKET_BRANCH -> $merged_branch"
 #
 #      - step:
 #          # Sync the Bitbucket repository with the GitHub mirror
