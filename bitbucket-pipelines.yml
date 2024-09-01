@@ -164,6 +164,7 @@ pipelines:
           # Delete feature-* branches merged to develop
           name: Delete Merged Feature Branches
           script:
+            - git clone git@bitbucket.org:sea-code-labs/angular-template.git
             - git fetch --all
             - |
               # Find branches merged into develop
