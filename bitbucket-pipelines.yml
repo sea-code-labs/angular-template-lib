@@ -167,19 +167,8 @@ pipelines:
             enabled: true
           script:
             - echo "Fetching branches..."
-            - apt-get update
-            - apt-get install -y git
-            - git fetch --all
-            - git checkout develop
-            - git pull origin develop
-            - echo "Listing all merged feature branches..."
-            - |
-              # Find merged feature branches and delete them
-              merged_branches=$(git branch -r --merged develop | grep 'origin/feature-' | sed 's/origin\///')
-              for branch in $merged_branches; do
-                echo "Deleting remote branch: $branch"
-                git push origin --delete "$branch"
-              done
+            - chmod +x ./scripts/delete-merged-branches.sh
+            - ./scripts/delete-merged-branches.sh
 
       - step:
           # Sync the Bitbucket repository with the GitHub mirror
