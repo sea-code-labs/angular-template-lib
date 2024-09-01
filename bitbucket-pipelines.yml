@@ -166,7 +166,6 @@ pipelines:
           clone:
             enabled: true
           script:
-            - echo "Fetching branches..."
             - chmod +x ./scripts/delete-merged-branches.sh
             - ./scripts/delete-merged-branches.sh
 
