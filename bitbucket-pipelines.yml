@@ -33,8 +33,6 @@ pipelines:
               if [ "$BITBUCKET_PR_DESTINATION_BRANCH" = "main" ] && [ "$BITBUCKET_BRANCH" != "develop" ]; then
                 echo "Error: PR to 'main' must come from 'develop'."
                 exit 1
-              else
-                echo "PR source branch is 'develop'."
               fi
 
       - step:
