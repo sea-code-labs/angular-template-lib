@@ -161,25 +161,6 @@ pipelines:
             - npx ng test --watch=false
 
       - step:
-          # Delete feature-* branches merged to develop
-          name: Delete Merged Feature Branches
-          script:
-            - git clone git@bitbucket.org:sea-code-labs/angular-template.git
-            - git fetch --all
-            - |
-              # Find branches merged into develop
-              merged_branches=$(git branch -r --merged origin/develop | grep 'origin/feature-' | sed 's/origin\///')
-              echo "Merged feature branches:"
-              echo "$merged_branches"
-
-              # Delete each merged branch
-              for branch in $merged_branches; do
-                echo "Deleting remote branch: $branch"
-                git push origin --delete "$branch"
-              done
-
-
-      - step:
           # Sync the Bitbucket repository with the GitHub mirror
           name: Sync GitHub Mirror
           clone:
@@ -227,6 +208,23 @@ pipelines:
             - export CHROME_BIN=/usr/bin/chromium
             - echo "Running tests..."
             - npx ng test --watch=false
+
+      - step:
+          # Delete feature-* branches merged to develop
+          name: Delete Merged Feature Branches
+          script:
+            - git fetch --all
+            - |
+              # Find branches merged into develop
+              merged_branches=$(git branch -r --merged origin/develop | grep 'origin/feature-' | sed 's/origin\///')
+              echo "Merged feature branches:"
+              echo "$merged_branches"
+
+              # Delete each merged branch
+              for branch in $merged_branches; do
+                echo "Deleting remote branch: $branch"
+                git push origin --delete "$branch"
+              done
 
       - step:
           # Sync the Bitbucket repository with the GitHub mirror
