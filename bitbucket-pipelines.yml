@@ -161,13 +161,31 @@ pipelines:
             - npx ng test --watch=false
 
       - step:
-          # Delete feature-* merged to develop
+          # Delete feature-* branches merged to develop
           name: Delete Merged Feature Branches
           clone:
             enabled: true
           script:
-            - chmod +x ./scripts/delete-merged-branches.sh
-            - ./scripts/delete-merged-branches.sh
+            - echo "Current directory $(pwd)"
+            - echo "Current git repository:"
+            - git rev-parse --show-toplevel
+            - echo "Fetching branches..."
+            - git fetch --all
+            - echo "Checking out develop branch..."
+            - git checkout develop
+            - echo "Listing all remote branches merged into develop..."
+            - |
+              # Find branches merged into develop
+              merged_branches=$(git branch -r --merged origin/develop | grep 'origin/feature-' | sed 's/origin\///')
+              echo "Merged feature branches:"
+              echo "$merged_branches"
+
+              # Delete each merged branch
+              for branch in $merged_branches; do
+                echo "Deleting remote branch: $branch"
+                git push origin --delete "$branch"
+              done
+
 
       - step:
           # Sync the Bitbucket repository with the GitHub mirror
