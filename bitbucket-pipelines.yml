@@ -139,11 +139,11 @@ pipelines:
             - echo "Checking merged branch..."
             - git fetch --prune
             - merged_commit=$(git log --merges -1 --pretty=format:"%H")
-            - echo "Latest merge commit -> $merged_commit"
+            - echo "Latest merge commit hash -> $merged_commit"
             - parent_commits=$(git log --pretty=format:"%P" -1 $merged_commit)
             - echo "Parent commits -> $parent_commits"
-            - branch_name=$(git branch -r --contains $(echo $parent_commits | cut -d ' ' -f 1) | head -n 1 | sed 's/origin\///')
-            - echo "Branch containing the latest merge commit -> $branch_name"
+            - merged_branch=$(git branch -r --contains $(echo $parent_commits | cut -d ' ' -f 2) | head -n 1 | sed 's/origin\///')
+            - echo "Branch that was merged into develop -> $merged_branch"
 
 #      - step:
 #          name: Env
