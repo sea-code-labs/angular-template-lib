@@ -136,8 +136,8 @@ pipelines:
       - step:
           name: "Check Merged Branch"
           script:
-            - echo "Checking merged branch"
-            - git fetch --prune --unshallow
+            - echo "Checking merged branch..."
+            - git fetch --prune
             - merged_branch=$(git log --merges -1 --pretty=format:"%P" | awk '{print $2}')
             - echo "Merged branch -> $merged_branch"
 #      - step:
