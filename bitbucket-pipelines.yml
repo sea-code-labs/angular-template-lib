@@ -138,8 +138,15 @@ pipelines:
           script:
             - echo "Checking merged branch..."
             - git fetch --prune
-            - merged_branch=$(git log --merges -1 --pretty=format:"%H")
-            - echo "Merged branch -> $merged_branch"
+            - merged_commit=$(git log --merges -1 --pretty=format:"%H")
+            - echo "Latest merge commit -> $merged_commit"
+            - parent_commits=$(git log --pretty=format:"%P" -1 $merged_commit)
+            - echo "Parent commits -> $parent_commits"
+            - for commit in $parent_commits; do
+              branch_name=$(git for-each-ref --format '%(refname:short)' --contains $commit | head -n 1)
+              echo "Branch containing commit $commit -> $branch_name"
+              done
+
 #      - step:
 #          name: Env
 #          script:
