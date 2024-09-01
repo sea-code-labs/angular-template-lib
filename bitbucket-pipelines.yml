@@ -24,6 +24,20 @@ pipelines:
               echo "Branch name validation passed."
 
       - step:
+          # Check if the source branch of the PR is 'develop' when merging into 'main'
+          name: Check PR Source for Main
+          script:
+            - echo "Checking if PR source is 'develop'..."
+            - |
+              # Ensure the destination branch is 'main' and the source branch is 'develop'
+              if [ "$BITBUCKET_PR_DESTINATION_BRANCH" = "main" ] && [ "$BITBUCKET_BRANCH" != "develop" ]; then
+                echo "Error: PR to 'main' must come from 'develop'."
+                exit 1
+              else
+                echo "PR source branch is 'develop'."
+              fi
+
+      - step:
           # Install dependencies and save cache for subsequent steps
           name: Install Dependencies and Cache
           caches:
