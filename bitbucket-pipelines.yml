@@ -215,16 +215,15 @@ pipelines:
           script:
             - |
               # Find branches merged into develop
-              git fetch origin
-              develop_commit=$(git rev-parse origin/develop)
-              merged_branches=$(git branch -r --merged "$develop_commit" | grep 'origin/feature-' | sed 's/origin\///')
+              develop_commit=$(git rev-parse develop)
+              merged_branches=$(git branch -r --merged "$develop_commit" | grep 'feature-')
               echo "Merged feature branches:"
               echo "$merged_branches"
 
               # Delete each merged branch
               for branch in $merged_branches; do
                 echo "Deleting remote branch: $branch"
-                git push origin --delete "$branch"
+                git push --delete "$branch"
               done
 
       - step:
