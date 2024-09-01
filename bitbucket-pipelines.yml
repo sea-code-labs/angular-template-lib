@@ -161,18 +161,25 @@ pipelines:
 #            - npx ng test --watch=false
 
       - step:
-          name: "Check Merged Branch"
+          name: Find Most Recently Merged Branch
           script:
-            - echo "Checking merged branch..."
-            - git fetch --prune
-            - merged_commit=$(git log --merges -1 --pretty=format:"%H")
-            - echo "Latest merge commit hash -> $merged_commit"
-            - parent_commits=$(git log --pretty=format:"%P" -1 $merged_commit)
-            - echo "Parent commits -> $parent_commits"
-            - second_parent_commit=$(echo $parent_commits | cut -d ' ' -f 2)
-            - echo "Second parent commit -> $second_parent_commit"
-            - merged_branch=$(git branch -r --contains $second_parent_commit | sed 's/origin\///' | head -n 2)
-            - echo "Branch that was merged into develop -> $merged_branch"
+            - apt-get update && apt-get install -y git
+            - git fetch --all
+            - |
+              recent_merge_commit=$(git log --merges $BITBUCKET_BRANCH -n 1 --pretty=format:"%H")
+              if [ -z "$recent_merge_commit" ]; then
+                echo "No merge commits found in $BITBUCKET_BRANCH."
+                exit 1
+              fi
+
+              merged_branch=$(git show -s --pretty=format:"%b" $recent_merge_commit | grep "Merge branch '" | sed -e "s/Merge branch '\(.*\)' into .*/\1/")
+
+              if [ -z "$merged_branch" ]; then
+                echo "Could not determine the merged branch."
+                exit 1
+              fi
+
+              echo "Most recently merged branch into $BITBUCKET_BRANCH": $merged_branch"
 #
 #      - step:
 #          # Sync the Bitbucket repository with the GitHub mirror
