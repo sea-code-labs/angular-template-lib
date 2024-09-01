@@ -24,6 +24,18 @@ pipelines:
               echo "Branch name validation passed."
 
       - step:
+          # Check if the source branch of the PR is 'develop' when merging into 'main'
+          name: Check PR Source for Main
+          script:
+            - echo "Checking if PR target is 'main'..."
+            - |
+              # Ensure the destination branch is 'main' and the source branch is 'develop'
+              if [ "$BITBUCKET_PR_DESTINATION_BRANCH" = "main" ] && [ "$BITBUCKET_BRANCH" != "develop" ]; then
+                echo "Error: PR to 'main' must come from 'develop'."
+                exit 1
+              fi
+
+      - step:
           # Install dependencies and save cache for subsequent steps
           name: Install Dependencies and Cache
           caches:
@@ -161,6 +173,24 @@ pipelines:
             - npx ng test --watch=false
 
       - step:
+          name: Delete merged feature branch
+          script:
+            - git fetch origin
+            - |
+              echo "Current branch is -> $BITBUCKET_BRANCH"
+              recent_merge_info=$(git log --first-parent --merges $BITBUCKET_BRANCH -1 --oneline)
+              source_branch=$(echo "$recent_merge_info" | grep -o 'feature-[^ ]*')
+
+              if [ -z "$source_branch" ]; then
+                echo "No merged feature branch found."
+                exit 1
+              else
+                echo "Found merged feature branch -> $source_branch. Deleting it..."
+                git push origin --delete "$source_branch"
+                echo "Branch $source_branch has been deleted from origin."
+              fi
+
+      - step:
           # Sync the Bitbucket repository with the GitHub mirror
           name: Sync GitHub Mirror
           clone:
@@ -208,23 +238,6 @@ pipelines:
             - export CHROME_BIN=/usr/bin/chromium
             - echo "Running tests..."
             - npx ng test --watch=false
-
-      - step:
-          # Delete feature-* branches merged to develop
-          name: Delete Merged Feature Branches
-          script:
-            - |
-              # Find branches merged into develop
-              develop_commit=$(git rev-parse develop)
-              merged_branches=$(git branch -r --merged "$develop_commit" | grep 'feature-')
-              echo "Merged feature branches:"
-              echo "$merged_branches"
-
-              # Delete each merged branch
-              for branch in $merged_branches; do
-                echo "Deleting remote branch: $branch"
-                git push --delete "$branch"
-              done
 
       - step:
           # Sync the Bitbucket repository with the GitHub mirror
