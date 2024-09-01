@@ -2,134 +2,146 @@
 image: node:20
 
 pipelines:
-#  pull-requests:
-#    # Pull request from feature-* to develop
-#    "feature-*":
-#      - step:
-#          name: Env
-#          script:
-#            - printenv
-#
-#      - step:
-#          # Validate that the branch name starts with 'feature-'
-#          name: Validate Branch Name
-#          script:
-#            - echo "Validating branch name..."
-#            - |
-#              # Ensure the branch name starts with 'feature-'
-#              if [[ ! "$BITBUCKET_BRANCH" =~ ^feature- ]]; then
-#                echo "Error: Branch name must start with 'feature-'."
-#                exit 1
-#              fi
-#              echo "Branch name validation passed."
-#
-#      - step:
-#          # Install dependencies and save cache for subsequent steps
-#          name: Install Dependencies and Cache
-#          caches:
-#            - node
-#          script:
-#            - echo "Installing dependencies..."
-#            - npm install
-#
-#      - step:
-#          # Run tests to validate the changes in feature branch
-#          name: Run Tests
-#          caches:
-#            - node
-#          script:
-#            - echo "Installing chromium..."
-#            - apt-get update
-#            - apt-get install -y chromium
-#            - export CHROME_BIN=/usr/bin/chromium
-#            - echo "Running tests..."
-#            - npx ng test --watch=false
-#
-#    # Pull request from develop to main
-#    develop:
-#      - step:
-#          name: Env
-#          script:
-#            - printenv
-#
-#      - step:
-#          # Check if the source branch of the PR is 'develop' when merging into 'main'
-#          name: Check PR Source for Main
-#          script:
-#            - echo "Checking if PR source is 'develop'..."
-#            - |
-#              # Ensure the destination branch is 'main' and the source branch is 'develop'
-#              if [ "$BITBUCKET_PR_DESTINATION_BRANCH" = "main" ] && [ "$BITBUCKET_BRANCH" != "develop" ]; then
-#                echo "Error: PR to 'main' must come from 'develop'."
-#                exit 1
-#              else
-#                echo "PR source branch is 'develop'."
-#              fi
-#
-#      - step:
-#          # Install dependencies and save cache for subsequent steps
-#          name: Install Dependencies and Cache
-#          caches:
-#            - node
-#          script:
-#            - echo "Installing dependencies..."
-#            - npm install
-#
-#      - step:
-#          # Run tests to validate the merge from develop to main
-#          name: Run Tests
-#          caches:
-#            - node
-#          script:
-#            - echo "Installing chromium..."
-#            - apt-get update
-#            - apt-get install -y chromium
-#            - export CHROME_BIN=/usr/bin/chromium
-#            - echo "Running tests..."
-#            - npx ng test --watch=false
+  pull-requests:
+    # Pull request from feature-* to develop
+    "feature-*":
+      - step:
+          name: Env
+          script:
+            - printenv
+
+      - step:
+          # Validate that the branch name starts with 'feature-'
+          name: Validate Branch Name
+          script:
+            - echo "Validating branch name..."
+            - |
+              # Ensure the branch name starts with 'feature-'
+              if [[ ! "$BITBUCKET_BRANCH" =~ ^feature- ]]; then
+                echo "Error: Branch name must start with 'feature-'."
+                exit 1
+              fi
+              echo "Branch name validation passed."
+
+      - step:
+          # Check if the source branch of the PR is 'develop' when merging into 'main'
+          name: Check PR Source for Main
+          script:
+            - echo "Checking if PR target is 'main'..."
+            - |
+              # Ensure the destination branch is 'main' and the source branch is 'develop'
+              if [ "$BITBUCKET_PR_DESTINATION_BRANCH" = "main" ] && [ "$BITBUCKET_BRANCH" != "develop" ]; then
+                echo "Error: PR to 'main' must come from 'develop'."
+                exit 1
+              fi
+
+      - step:
+          # Install dependencies and save cache for subsequent steps
+          name: Install Dependencies and Cache
+          caches:
+            - node
+          script:
+            - echo "Installing dependencies..."
+            - npm install
+
+      - step:
+          # Run tests to validate the changes in feature branch
+          name: Run Tests
+          caches:
+            - node
+          script:
+            - echo "Installing chromium..."
+            - apt-get update
+            - apt-get install -y chromium
+            - export CHROME_BIN=/usr/bin/chromium
+            - echo "Running tests..."
+            - npx ng test --watch=false
+
+    # Pull request from develop to main
+    develop:
+      - step:
+          name: Env
+          script:
+            - printenv
+
+      - step:
+          # Check if the source branch of the PR is 'develop' when merging into 'main'
+          name: Check PR Source for Main
+          script:
+            - echo "Checking if PR source is 'develop'..."
+            - |
+              # Ensure the destination branch is 'main' and the source branch is 'develop'
+              if [ "$BITBUCKET_PR_DESTINATION_BRANCH" = "main" ] && [ "$BITBUCKET_BRANCH" != "develop" ]; then
+                echo "Error: PR to 'main' must come from 'develop'."
+                exit 1
+              else
+                echo "PR source branch is 'develop'."
+              fi
+
+      - step:
+          # Install dependencies and save cache for subsequent steps
+          name: Install Dependencies and Cache
+          caches:
+            - node
+          script:
+            - echo "Installing dependencies..."
+            - npm install
+
+      - step:
+          # Run tests to validate the merge from develop to main
+          name: Run Tests
+          caches:
+            - node
+          script:
+            - echo "Installing chromium..."
+            - apt-get update
+            - apt-get install -y chromium
+            - export CHROME_BIN=/usr/bin/chromium
+            - echo "Running tests..."
+            - npx ng test --watch=false
 
   branches:
     # Branch feature-* (push)
-#    feature-*:
-#      - step:
-#          name: Env
-#          script:
-#            - printenv
-#
-#      - step:
-#          # Validate that the branch name starts with 'feature-'
-#          name: Validate Branch Name
-#          script:
-#            - echo "Validating branch name..."
-#            - |
-#              # Ensure the branch name starts with 'feature-'
-#              if [[ ! "$BITBUCKET_BRANCH" =~ ^feature- ]]; then
-#                echo "Error: Branch name must start with 'feature-'."
-#                exit 1
-#              fi
-#              echo "Branch name validation passed."
-#
-#      - step:
-#          # Install dependencies and save cache for subsequent steps
-#          name: Install Dependencies and Cache
-#          caches:
-#            - node
-#          script:
-#            - echo "Installing dependencies..."
-#            - npm install
-#
-#      - step:
-#          # Run tests to validate the changes on the feature branch
-#          name: Run Tests
-#          caches:
-#            - node
-#          script:
-#            - echo "Installing chromium..."
-#            - apt-get update
-#            - apt-get install -y chromium
-#            - export CHROME_BIN=/usr/bin/chromium
-#            - echo "Running tests..."
-#            - npx ng test --watch=false
+    feature-*:
+      - step:
+          name: Env
+          script:
+            - printenv
+
+      - step:
+          # Validate that the branch name starts with 'feature-'
+          name: Validate Branch Name
+          script:
+            - echo "Validating branch name..."
+            - |
+              # Ensure the branch name starts with 'feature-'
+              if [[ ! "$BITBUCKET_BRANCH" =~ ^feature- ]]; then
+                echo "Error: Branch name must start with 'feature-'."
+                exit 1
+              fi
+              echo "Branch name validation passed."
+
+      - step:
+          # Install dependencies and save cache for subsequent steps
+          name: Install Dependencies and Cache
+          caches:
+            - node
+          script:
+            - echo "Installing dependencies..."
+            - npm install
+
+      - step:
+          # Run tests to validate the changes on the feature branch
+          name: Run Tests
+          caches:
+            - node
+          script:
+            - echo "Installing chromium..."
+            - apt-get update
+            - apt-get install -y chromium
+            - export CHROME_BIN=/usr/bin/chromium
+            - echo "Running tests..."
+            - npx ng test --watch=false
 
     # Branch develop (push)
     develop:
@@ -137,28 +149,28 @@ pipelines:
           name: Env
           script:
             - printenv
-#
-#      - step:
-#          # Install dependencies and save cache for subsequent steps
-#          name: Install Dependencies and Cache
-#          caches:
-#            - node
-#          script:
-#            - echo "Installing dependencies..."
-#            - npm install
-#
-#      - step:
-#          # Run tests to validate the changes on the develop branch
-#          name: Run Tests
-#          caches:
-#            - node
-#          script:
-#            - echo "Installing chromium..."
-#            - apt-get update
-#            - apt-get install -y chromium
-#            - export CHROME_BIN=/usr/bin/chromium
-#            - echo "Running tests..."
-#            - npx ng test --watch=false
+
+      - step:
+          # Install dependencies and save cache for subsequent steps
+          name: Install Dependencies and Cache
+          caches:
+            - node
+          script:
+            - echo "Installing dependencies..."
+            - npm install
+
+      - step:
+          # Run tests to validate the changes on the develop branch
+          name: Run Tests
+          caches:
+            - node
+          script:
+            - echo "Installing chromium..."
+            - apt-get update
+            - apt-get install -y chromium
+            - export CHROME_BIN=/usr/bin/chromium
+            - echo "Running tests..."
+            - npx ng test --watch=false
 
       - step:
           name: Delete merged feature branch
@@ -178,26 +190,25 @@ pipelines:
                 echo "Branch $source_branch has been deleted from origin."
               fi
 
-#
-#      - step:
-#          # Sync the Bitbucket repository with the GitHub mirror
-#          name: Sync GitHub Mirror
-#          clone:
-#            enabled: false
-#          script:
-#            - echo "Cloning Bitbucket repository as a bare clone..."
-#            # Perform a bare clone of the Bitbucket repository
-#            - git clone --bare git@bitbucket.org:sea-code-labs/angular-template.git
-#            - cd angular-template.git
-#            - echo "Pushing to GitHub mirror..."
-#            # Push all refs to the GitHub mirror
-#            - git push --mirror git@github.com:sea-code-labs/angular-template.git
-#
-#      - step:
-#          # Mock deploy to the test environment after pushing to develop
-#          name: Deploy to Test Environment (Mock)
-#          script:
-#            - echo "Mocking deploy to test environment..."
+      - step:
+          # Sync the Bitbucket repository with the GitHub mirror
+          name: Sync GitHub Mirror
+          clone:
+            enabled: false
+          script:
+            - echo "Cloning Bitbucket repository as a bare clone..."
+            # Perform a bare clone of the Bitbucket repository
+            - git clone --bare git@bitbucket.org:sea-code-labs/angular-template.git
+            - cd angular-template.git
+            - echo "Pushing to GitHub mirror..."
+            # Push all refs to the GitHub mirror
+            - git push --mirror git@github.com:sea-code-labs/angular-template.git
+
+      - step:
+          # Mock deploy to the test environment after pushing to develop
+          name: Deploy to Test Environment (Mock)
+          script:
+            - echo "Mocking deploy to test environment..."
 
     # Branch main (push)
     main:
