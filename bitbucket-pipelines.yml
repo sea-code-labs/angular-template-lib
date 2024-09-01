@@ -161,10 +161,10 @@ pipelines:
 #            - npx ng test --watch=false
 
       - step:
-          name: Find Most Recently Merged Branch
+          name: Delete merged feature branch
           script:
             - git fetch origin
-              - |
+            - |
               echo "Current branch is -> $BITBUCKET_BRANCH"
               recent_merge_info=$(git log --first-parent --merges $BITBUCKET_BRANCH -1 --oneline)
               source_branch=$(echo "$recent_merge_info" | grep -o 'feature-[^ ]*')
