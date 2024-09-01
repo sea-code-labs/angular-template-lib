@@ -62,7 +62,7 @@ angular-template/
 ├── scripts
 │   ├── create-app.js
 │   ├── create-lib.js
-│   ├── cleanup-branches.sh
+│   ├── git-sync.sh
 │   ├── stylelint.sh
 ├── .browserslistrc
 ├── .dockerignore
