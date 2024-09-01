@@ -164,7 +164,7 @@ pipelines:
           # Delete feature-* merged to develop
           name: Delete Merged Feature Branches
           clone:
-            enabled: false
+            enabled: true
           script:
             - echo "Fetching all branches..."
             - git fetch --all
