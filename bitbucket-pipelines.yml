@@ -1,0 +1,88 @@
+# Use Node.js v20 image as the base for the pipeline
+image: node:20
+
+pipelines:
+  pull-requests:
+    # Applies to all pull requests, regardless of target branch
+    '**':
+      - step:
+          # Step to check if the PR is coming from the 'develop' branch when targeting 'main'
+          name: Check PR Source for Main
+          script:
+            - echo "Checking PR source branch..."
+            - |
+              # Check if the destination branch is 'main'
+              if [ "$BITBUCKET_PR_DESTINATION_BRANCH" = "main" ]; then
+                # Check if the source branch is not 'develop'
+                if [ "$BITBUCKET_BRANCH" != "develop" ]; then
+                  # Fail if the source branch isn't 'develop'
+                  echo "Error: PR to 'main' must come from 'develop'. Current source branch is $BITBUCKET_BRANCH."
+                  exit 1
+                else
+                  # Pass if the source branch is 'develop'
+                  echo "PR source branch is 'develop'. Check passed."
+                fi
+              else
+                # Skip the check if the destination is not 'main'
+                echo "PR does not target 'main', skipping source branch check."
+              fi
+
+      - step:
+          # Step to sync the Bitbucket repository with the GitHub mirror
+          name: Sync GitHub Mirror
+          clone:
+            # Skip cloning the entire repository since we are using a bare clone
+            enabled: false
+          script:
+            - echo "Cloning Bitbucket repository as a bare clone..."
+            # Perform a bare clone of the Bitbucket repository
+            - git clone --bare git@bitbucket.org:sea-code-labs/angular-template.git
+            - cd angular-template.git
+            - echo "Pushing to GitHub mirror..."
+            # Push all refs to the GitHub mirror
+            - git push --mirror git@github.com:sea-code-labs/angular-template.git
+
+  branches:
+    feature-*:
+      - step:
+          # Step to validate that the branch name starts with 'feature-'
+          name: Validate Branch Name
+          script:
+            - echo "Validating branch name..."
+            - |
+              # Check if the branch name does not start with 'feature-'
+              if [[ ! "$BITBUCKET_BRANCH" =~ ^feature- ]]; then
+                # Fail if the branch naming convention is not followed
+                echo "Error: Branch name must start with 'feature-'."
+                exit 1
+              fi
+              # Pass if the branch name is valid
+              echo "Branch name validation passed."
+
+      - step:
+          # Step to run tests using Node.js and Chromium for headless testing
+          name: Run Tests
+          caches:
+            # Use Node.js cache for faster builds
+            - node
+          script:
+            - echo "Installing dependencies..."
+            # Install Node.js dependencies
+            - npm install
+            - echo "Updating package list and installing Chromium for headless testing..."
+            # Update the package list
+            - apt-get update
+            # Install Chromium for running Angular tests in headless mode
+            - apt-get install -y chromium
+            # Set the Chromium path for headless testing
+            - export CHROME_BIN=/usr/bin/chromium
+            - |
+              # Check if there are Angular projects in the 'projects' directory
+              if [ "$(ls -A projects)" ]; then
+                # Run tests if projects are found
+                echo "Found projects. Running tests..."
+                npx ng test --watch=false
+              else
+                # Skip testing if no projects are found
+                echo "No projects found in 'projects' directory. Skipping tests."
+              fi

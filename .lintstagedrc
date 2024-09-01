@@ -1,0 +1,4 @@
+{
+  "projects/**/*.ts": ["prettier --config ./.prettierrc --write", "eslint"],
+  "projects/**/*.scss": ["stylelint"]
+}

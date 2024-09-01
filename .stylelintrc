@@ -1,0 +1,18 @@
+{
+  "extends": "stylelint-config-recommended",
+  "plugins": ["stylelint-scss"],
+  "rules": {
+    "no-duplicate-selectors": true,
+    "color-named": "never",
+    "selector-no-qualifying-type": true,
+    "selector-attribute-quotes": "always",
+    "declaration-no-important": true,
+    "function-url-quotes": "always",
+    "font-weight-notation": "numeric",
+    "font-family-name-quotes": "always-unless-keyword",
+    "comment-whitespace-inside": "always",
+    "comment-empty-line-before": "never",
+    "rule-empty-line-before": "always",
+    "selector-pseudo-element-colon-notation": "double"
+  }
+}
