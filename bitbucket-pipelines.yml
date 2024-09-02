@@ -50,6 +50,7 @@ pipelines:
           caches:
             - node
           script:
+            - echo "Running tests..."
             - npx ng test --watch=false
 
     # Pull request from develop to main
@@ -88,6 +89,7 @@ pipelines:
           caches:
             - node
           script:
+            - echo "Running tests..."
             - npx ng test --watch=false
 
   branches:
@@ -127,6 +129,7 @@ pipelines:
           caches:
             - node
           script:
+            - echo "Running tests..."
             - npx ng test --watch=false
 
     develop:
@@ -150,6 +153,7 @@ pipelines:
           caches:
             - node
           script:
+            - echo "Running tests..."
             - npx ng test --watch=false
 
       - step:
@@ -176,6 +180,8 @@ pipelines:
           clone:
             enabled: false
           script:
+            - mkdir -p ~/.ssh
+            - ssh-keyscan github.com >> ~/.ssh/known_hosts
             - echo "Cloning Bitbucket repository as a bare clone..."
             # Perform a bare clone of the Bitbucket repository
             - git clone --bare git@bitbucket.org:sea-code-labs/angular-template-lib.git
@@ -223,6 +229,7 @@ pipelines:
           caches:
             - node
           script:
+            - echo "Running tests..."
             - npx ng test --watch=false
 
       - step:
@@ -231,6 +238,8 @@ pipelines:
           clone:
             enabled: false
           script:
+            - mkdir -p ~/.ssh
+            - ssh-keyscan github.com >> ~/.ssh/known_hosts
             - echo "Cloning Bitbucket repository as a bare clone..."
             # Perform a bare clone of the Bitbucket repository
             - git clone --bare git@bitbucket.org:sea-code-labs/angular-template-lib.git
