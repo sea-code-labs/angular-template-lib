@@ -199,7 +199,7 @@ pipelines:
                 if [ -f "$lib/package.json" ]; then
                   cd "$lib"
                   npm install
-                  npm run build
+                  ng build --configuration production
                   npm version prerelease --preid=dev --no-git-tag-version
                   npm publish --tag dev
                   cd -
@@ -255,7 +255,7 @@ pipelines:
                 if [ -f "$lib/package.json" ]; then
                   cd "$lib"
                   npm install
-                  npm run build
+                  ng build --configuration production
                   npm version patch --no-git-tag-version
                   npm publish
                   cd -
