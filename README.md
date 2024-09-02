@@ -121,6 +121,6 @@ npm run sync
 ### Development
 
 For detailed information about development flow,
-visit [development documentation](https://seacodelabs.atlassian.net/wiki/external/N2UwY2NiYzBiNGVjNDkwZGFkNjFhZDgyZTFjNTBkMjg).
+visit [development documentation](https://seacodelabs.atlassian.net/wiki/external/N2UwY2NiYzBiNGVjNDkwZGFkNjFhZDgyZTFjNTBkMjg). 
 
 **@sea-code-labs**
