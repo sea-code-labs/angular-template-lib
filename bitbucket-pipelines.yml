@@ -194,12 +194,13 @@ pipelines:
             - npm config set @sea-code-themes:registry https://registry.npmjs.org/
             - npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
             - npm install
+            - npm install -g @angular/cli
             - |
               for lib in projects/libs/*; do
                 if [ -f "$lib/package.json" ]; then
                   cd "$lib"
                   npm install
-                  npm run build
+                  ng build --configuration production
                   npm version prerelease --preid=dev --no-git-tag-version
                   npm publish --tag dev
                   cd -
@@ -250,6 +251,7 @@ pipelines:
             - npm config set @sea-code-themes:registry https://registry.npmjs.org/
             - npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
             - npm install
+            - npm install -g @angular/cli
             - |
               for lib in projects/libs/*; do
                 if [ -f "$lib/package.json" ]; then
