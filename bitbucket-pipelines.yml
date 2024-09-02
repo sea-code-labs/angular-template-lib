@@ -180,12 +180,10 @@ pipelines:
           clone:
             enabled: false
           script:
-            - mkdir -p ~/.ssh
-            - ssh-keyscan github.com >> ~/.ssh/known_hosts
             - echo "Cloning Bitbucket repository as a bare clone..."
             # Perform a bare clone of the Bitbucket repository
             - git clone --bare git@bitbucket.org:sea-code-labs/angular-template-lib.git
-            - cd angular-template.git
+            - cd angular-template-lib.git
             - echo "Pushing to GitHub mirror..."
             # Push all refs to the GitHub mirror
             - git push --mirror git@github.com:sea-code-labs/angular-template-lib.git
@@ -238,12 +236,10 @@ pipelines:
           clone:
             enabled: false
           script:
-            - mkdir -p ~/.ssh
-            - ssh-keyscan github.com >> ~/.ssh/known_hosts
             - echo "Cloning Bitbucket repository as a bare clone..."
             # Perform a bare clone of the Bitbucket repository
             - git clone --bare git@bitbucket.org:sea-code-labs/angular-template-lib.git
-            - cd angular-template.git
+            - cd angular-template-lib.git
             - echo "Pushing to GitHub mirror..."
             # Push all refs to the GitHub mirror
             - git push --mirror git@github.com:sea-code-labs/angular-template-lib.git
