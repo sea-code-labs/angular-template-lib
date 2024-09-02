@@ -2,11 +2,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TestLibComponent } from './test-lib.component';
 
-describe('TestLibComponent', (): void => {
+describe('TestLibComponent', () => {
   let component: TestLibComponent;
   let fixture: ComponentFixture<TestLibComponent>;
 
-  beforeEach(async (): Promise<void> => {
+  beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TestLibComponent],
     }).compileComponents();
@@ -16,7 +16,7 @@ describe('TestLibComponent', (): void => {
     fixture.detectChanges();
   });
 
-  it('should create', (): void => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 });

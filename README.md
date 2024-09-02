@@ -1,8 +1,8 @@
-# Angular Template
+# Angular Template Lib
 
 ## Introduction
 
-This repository serves as a base template for all Angular projects in our organization. The template is designed to follow best practices for Angular development, ensuring consistency, scalability, and maintainability across all projects. It includes predefined configurations, structures, and tools to simplify the project setup and speed up development.
+This repository serves as a base template for all Angular libraries in our organization. The template is designed to follow best practices for Angular development, ensuring consistency, scalability, and maintainability across all projects. It includes predefined configurations, structures, and tools to simplify the project setup and speed up development.
 
 ## Features
 
@@ -11,8 +11,6 @@ This repository serves as a base template for all Angular projects in our organi
 - **Linting and Formatting**: Integrated ESLint and Prettier for code quality.
 - **Testing**: Configured for unit tests using Karma and Jasmine.
 - **CI/CD Ready**: Includes configurations for continuous integration pipelines.
-- **Nginx Configuration**: Comes with pre-configured Nginx settings for optimized web serving.
-- **Dockerfile**: Provides a Dockerfile for containerizing the application.
 - **Sync Scripts**: Includes scripts for synchronizing with remote repositories.
 - **Git Flow Checks**: Implements checks to ensure adherence to Git Flow workflows.
 
@@ -49,23 +47,18 @@ npm run scripts:grant:access
 ### Default Project Structure
 
 ```text
-angular-template/
+angular-template-lib/
 ├── .husky
 │   ├── commit-msg
 │   ├── pre-commit
-├── nginx
-│   ├── nginx.conf
 ├── node_modules
 ├── projects
-│   ├── apps
 │   ├── libs
 ├── scripts
-│   ├── create-app.js
 │   ├── create-lib.js
 │   ├── git-sync.sh
 │   ├── stylelint.sh
 ├── .browserslistrc
-├── .dockerignore
 ├── .editorconfig
 ├── .gitignore
 ├── .lintstagedrc
@@ -73,10 +66,7 @@ angular-template/
 ├── .stylelintrc
 ├── angular.json
 ├── bitbucket-pipelines.yml
-├── CHANGELOG.md
 ├── commitlint.config.ts
-├── docker-compose.yml
-├── Dockerfile
 ├── eslint.config.mjs
 ├── husky-mod.js
 ├── karma.conf.js
@@ -99,16 +89,12 @@ angular-template/
 
 4. Configure linting rules, prettier and husky hooks in husky-mod based on project needs.
 
-5. Configure nginx configuration and Dockerfile based on project needs.
-
 ### Additional Instructions
 
-1. You can create application or library directly in projects folders
-   with already connected karma config using this scripts:
+1. You can create library directly in projects folders
+   with already connected karma config using this script:
 
 ```
-npm run ng:app [app-name]
-
 npm run ng:lib [lib-name]
 ```
 
@@ -130,12 +116,6 @@ npm run npm:rebuild
 
 ```
 npm run sync
-```
-
-5. You can test-run your application in docker container using this script:
-
-```
-APP=[app-name] npm run docker:start
 ```
 
 ### Development

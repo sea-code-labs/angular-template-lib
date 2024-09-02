@@ -1,11 +1,10 @@
 {
-  "name": "angular-template",
+  "name": "angular-template-lib",
   "version": "1800.0.0",
   "scripts": {
     "-----BASIC-----": "exit 0",
     "start": "ng serve",
     "test": "ng test",
-    "build": "ng build",
     "sync": "npm run git:sync:branches",
     "-----CODE-GLANCE-----": "exit 0",
     "stylelint": "./scripts/stylelint.sh",
@@ -22,12 +21,11 @@
     "npm:clean": "rimraf node_modules/ && rimraf ./package-lock.json && npm cache clean -f",
     "npm:fix": "npm audit fix",
     "-----ANGULAR-----": "exit 0",
-    "ng:app": "node ./scripts/create-app.js",
     "ng:lib": "node ./scripts/create-lib.js",
+    "-----LIBRARIES-----": "exit 0",
+    "build:libs": "node ./scripts/build-libs.js",
     "-----GIT-----": "exit 0",
-    "git:sync:branches": "scripts/git-sync.sh",
-    "-----DOCKER-----": "exit 0",
-    "docker:start": "docker image prune -f && docker-compose build --no-cache && docker-compose up"
+    "git:sync:branches": "scripts/git-sync.sh"
   },
   "private": true,
   "dependencies": {
@@ -77,6 +75,7 @@
     "lint-staged": "~15.2.9",
     "ng-packagr": "~18.2.0",
     "prettier": "~3.3.3",
+    "semver": "^7.6.3",
     "stylelint": "~16.8.2",
     "stylelint-config-recommended": "~14.0.1",
     "stylelint-scss": "~6.5.1",
