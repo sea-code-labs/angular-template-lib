@@ -127,7 +127,7 @@ pipelines:
           caches:
             - node
           script:
-            - npx nx test --watch=false
+            - npx ng test --watch=false
 
     develop:
       - step:
