@@ -1,10 +1,9 @@
-# Use Node.js v20 image as the base for the pipeline
-image: node:20
+image: seacodelabs/node20-chromium:latest
 
 pipelines:
   pull-requests:
     # Pull request from feature-* to develop
-    "feature-*":
+    'feature-*':
       - step:
           name: Env
           script:
@@ -21,6 +20,7 @@ pipelines:
                 echo "Error: Branch name must start with 'feature-'."
                 exit 1
               fi
+
               echo "Branch name validation passed."
 
       - step:
@@ -50,10 +50,6 @@ pipelines:
           caches:
             - node
           script:
-            - echo "Installing chromium..."
-            - apt-get update
-            - apt-get install -y chromium
-            - export CHROME_BIN=/usr/bin/chromium
             - echo "Running tests..."
             - npx ng test --watch=false
 
@@ -93,10 +89,6 @@ pipelines:
           caches:
             - node
           script:
-            - echo "Installing chromium..."
-            - apt-get update
-            - apt-get install -y chromium
-            - export CHROME_BIN=/usr/bin/chromium
             - echo "Running tests..."
             - npx ng test --watch=false
 
@@ -119,6 +111,7 @@ pipelines:
                 echo "Error: Branch name must start with 'feature-'."
                 exit 1
               fi
+
               echo "Branch name validation passed."
 
       - step:
@@ -136,14 +129,9 @@ pipelines:
           caches:
             - node
           script:
-            - echo "Installing chromium..."
-            - apt-get update
-            - apt-get install -y chromium
-            - export CHROME_BIN=/usr/bin/chromium
             - echo "Running tests..."
             - npx ng test --watch=false
 
-    # Branch develop (push)
     develop:
       - step:
           name: Env
@@ -165,10 +153,6 @@ pipelines:
           caches:
             - node
           script:
-            - echo "Installing chromium..."
-            - apt-get update
-            - apt-get install -y chromium
-            - export CHROME_BIN=/usr/bin/chromium
             - echo "Running tests..."
             - npx ng test --watch=false
 
@@ -198,24 +182,37 @@ pipelines:
           script:
             - echo "Cloning Bitbucket repository as a bare clone..."
             # Perform a bare clone of the Bitbucket repository
-            - git clone --bare git@bitbucket.org:sea-code-labs/angular-template.git
-            - cd angular-template.git
+            - git clone --bare git@bitbucket.org:sea-code-labs/angular-template-lib.git
+            - cd angular-template-lib.git
             - echo "Pushing to GitHub mirror..."
             # Push all refs to the GitHub mirror
-            - git push --mirror git@github.com:sea-code-labs/angular-template.git
+            - git push --mirror git@github.com:sea-code-labs/angular-template-lib.git
 
       - step:
-          # Mock deploy to the test environment after pushing to develop
-          name: Deploy to Test Environment (Mock)
+          name: Build & Publish Dev
           script:
-            - echo "Mocking deploy to test environment..."
+            - npm config set @sea-code-themes:registry https://registry.npmjs.org/
+            - npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
+            - npm install
+            - npm install -g @angular/cli
+            - |
+              for lib in projects/libs/*; do
+                if [ -f "$lib/package.json" ]; then
+                  cd "$lib"
+                  npm install
+                  ng build --configuration production
+                  npm version prerelease --preid=dev --no-git-tag-version
+                  npm publish --access public --tag dev
+                  cd -
+                  sleep 10
+                fi
+              done
 
-    # Branch main (push)
     main:
       - step:
-            name: Env
-            script:
-              - printenv
+          name: Env
+          script:
+            - printenv
 
       - step:
           # Install dependencies and save cache for subsequent steps
@@ -232,10 +229,6 @@ pipelines:
           caches:
             - node
           script:
-            - echo "Installing chromium..."
-            - apt-get update
-            - apt-get install -y chromium
-            - export CHROME_BIN=/usr/bin/chromium
             - echo "Running tests..."
             - npx ng test --watch=false
 
@@ -247,14 +240,28 @@ pipelines:
           script:
             - echo "Cloning Bitbucket repository as a bare clone..."
             # Perform a bare clone of the Bitbucket repository
-            - git clone --bare git@bitbucket.org:sea-code-labs/angular-template.git
-            - cd angular-template.git
+            - git clone --bare git@bitbucket.org:sea-code-labs/angular-template-lib.git
+            - cd angular-template-lib.git
             - echo "Pushing to GitHub mirror..."
             # Push all refs to the GitHub mirror
-            - git push --mirror git@github.com:sea-code-labs/angular-template.git
+            - git push --mirror git@github.com:sea-code-labs/angular-template-lib.git
 
       - step:
-          # Mock deploy to the production environment after pushing to main
-          name: Deploy to Production Environment (Mock)
+          name: Build & Publish Prod
           script:
-            - echo "Mocking deploy to production environment..."
+            - npm config set @sea-code-themes:registry https://registry.npmjs.org/
+            - npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
+            - npm install
+            - npm install -g @angular/cli
+            - |
+              for lib in projects/libs/*; do
+                if [ -f "$lib/package.json" ]; then
+                  cd "$lib"
+                  npm install
+                  npm run build
+                  npm version patch --no-git-tag-version
+                  npm publish --access public
+                  cd -
+                  sleep 10
+                fi
+              done
