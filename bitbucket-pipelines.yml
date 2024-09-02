@@ -204,6 +204,7 @@ pipelines:
                   npm version prerelease --preid=dev --no-git-tag-version
                   npm publish --access public --tag dev
                   cd -
+                  sleep 10
                 fi
               done
 
@@ -261,5 +262,6 @@ pipelines:
                   npm version patch --no-git-tag-version
                   npm publish --access public
                   cd -
+                  sleep 10
                 fi
               done
