@@ -5,6 +5,7 @@
     "-----BASIC-----": "exit 0",
     "start": "ng serve",
     "test": "ng test",
+    "build": "ng build --configuration production",
     "sync": "npm run git:sync:branches",
     "-----CODE-GLANCE-----": "exit 0",
     "stylelint": "./scripts/stylelint.sh",
