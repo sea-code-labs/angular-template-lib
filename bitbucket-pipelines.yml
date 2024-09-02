@@ -259,7 +259,7 @@ pipelines:
                   npm install
                   npm run build
                   npm version patch --no-git-tag-version
-                  npm publish
+                  npm publish --access public
                   cd -
                 fi
               done
