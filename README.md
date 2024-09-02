@@ -55,6 +55,7 @@ angular-template-lib/
 ├── projects
 │   ├── libs
 ├── scripts
+│   ├── build-libs.js
 │   ├── create-lib.js
 │   ├── git-sync.sh
 │   ├── stylelint.sh
