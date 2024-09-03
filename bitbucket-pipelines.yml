@@ -194,6 +194,7 @@ pipelines:
             - npm config set @sea-code-themes:registry https://registry.npmjs.org/
             - npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
             - npm install -g @angular/cli
+            - npm install
             - apt-get update && apt-get install -y jq
             - |
               for lib in projects/libs/*; do
@@ -269,6 +270,7 @@ pipelines:
             - npm config set @sea-code-themes:registry https://registry.npmjs.org/
             - npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
             - apt-get update && apt-get install -y jq
+            - npm install
             - npm install -g @angular/cli
             - |
               for lib in projects/libs/*; do
