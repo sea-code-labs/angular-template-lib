@@ -147,7 +147,6 @@ pipelines:
             - echo "Installing dependencies..."
             - npm install
             - npm install -g @angular/cli
-            - apt-get update && apt-get install -y jq
 
       - step:
           # Run tests to validate the changes on the develop branch
@@ -195,6 +194,7 @@ pipelines:
           script:
             - npm config set @sea-code-themes:registry https://registry.npmjs.org/
             - npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
+            - apt-get update && apt-get install -y jq
             - |
               for lib in projects/libs/*; do
                 if [ -f "$lib/package.json" ]; then
@@ -240,7 +240,6 @@ pipelines:
             - echo "Installing dependencies..."
             - npm install
             - npm install -g @angular/cli
-            - apt-get update && apt-get install -y jq
 
       - step:
           # Run tests to validate the changes on the main branch
@@ -270,6 +269,7 @@ pipelines:
           script:
             - npm config set @sea-code-themes:registry https://registry.npmjs.org/
             - npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
+            - apt-get update && apt-get install -y jq
             - |
               for lib in projects/libs/*; do
                 if [ -f "$lib/package.json" ]; then
