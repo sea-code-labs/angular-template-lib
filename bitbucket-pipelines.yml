@@ -197,36 +197,33 @@ pipelines:
             - npm install
             - apt-get update && apt-get install -y jq
             - |
-              for lib in projects/libs/*; do
-                if [ -d "$lib" ] && [ -f "$lib/package.json" ]; then
-                  cd "$lib" || exit
+              find projects/libs -maxdepth 1 -mindepth 1 -type d | while read -r lib; do
+                [ -f "$lib/package.json" ] || continue
 
-                  npm install
+                cd "$lib" || exit
+                npm install
 
-                  PACKAGE_NAME=$(jq -r .name package.json)
-                  # Fetch the current version from npm registry
-                  NPM_VERSION=$(npm show $PACKAGE_NAME version --registry https://registry.npmjs.org/ 2>/dev/null || echo "0.0.0")
+                PACKAGE_NAME=$(jq -r .name package.json)
+                NPM_VERSION=$(npm show "$PACKAGE_NAME" version --registry https://registry.npmjs.org/ 2>/dev/null || echo "0.0.0")
 
-                  if [ "$NPM_VERSION" = "0.0.0" ]; then
-                    echo "Skipping dev publish for $PACKAGE_NAME: Package does not exist on npm."
+                if [ "$NPM_VERSION" = "0.0.0" ]; then
+                  echo "Skipping dev publish for $PACKAGE_NAME: Package does not exist on npm."
+                else
+                  ng build --configuration production
+                  npm version prerelease --preid=dev --no-git-tag-version
+
+                  NEW_VERSION=$(jq -r .version package.json)
+
+                  if semver gt "$NEW_VERSION" "$NPM_VERSION"; then
+                    npm publish --access public --tag dev
+                    echo "Published $PACKAGE_NAME@$NEW_VERSION with tag dev"
                   else
-                    ng build --configuration production
-                    npm version prerelease --preid=dev --no-git-tag-version
-
-                    NEW_VERSION=$(jq -r .version package.json)
-
-                    # Compare versions using semver
-                    if semver gt "$NEW_VERSION" "$NPM_VERSION"; then
-                      npm publish --access public --tag dev
-                      echo "Published $PACKAGE_NAME@$NEW_VERSION with tag dev"
-                    else
-                      echo "Skipping dev publish for $PACKAGE_NAME: $NEW_VERSION is not greater than $NPM_VERSION."
-                    fi
+                    echo "Skipping dev publish for $PACKAGE_NAME: $NEW_VERSION is not greater than $NPM_VERSION."
                   fi
-
-                  cd - || exit
-                  sleep 10
                 fi
+
+                cd - || exit
+                sleep 10
               done
 
     main:
@@ -276,30 +273,27 @@ pipelines:
             - npm install
             - npm install -g @angular/cli semver
             - |
-              for lib in projects/libs/*; do
-                if [ -d "$lib" ] && [ -f "$lib/package.json" ]; then
-                  cd "$lib" || exit
+              find projects/libs -maxdepth 1 -mindepth 1 -type d | while read -r lib; do
+                [ -f "$lib/package.json" ] || continue
 
-                  npm install
+                cd "$lib" || exit
+                npm install
 
-                  PACKAGE_NAME=$(jq -r .name package.json)
-                  # Fetch the current version from npm registry
-                  NPM_VERSION=$(npm show $PACKAGE_NAME version --registry https://registry.npmjs.org/ 2>/dev/null || echo "0.0.0")
+                PACKAGE_NAME=$(jq -r .name package.json)
+                NPM_VERSION=$(npm show "$PACKAGE_NAME" version 2>/dev/null || echo "0.0.0")
 
-                  ng build --configuration production
-                  npm version patch --no-git-tag-version
+                ng build --configuration production
+                npm version patch --no-git-tag-version
 
-                  NEW_VERSION=$(jq -r .version package.json)
+                NEW_VERSION=$(jq -r .version package.json)
 
-                  # Compare versions using semver
-                  if semver gt "$NEW_VERSION" "$NPM_VERSION"; then
-                    npm publish --access public
-                    echo "Published $PACKAGE_NAME@$NEW_VERSION"
-                  else
-                    echo "Skipping publish for $PACKAGE_NAME: $NEW_VERSION is not greater than $NPM_VERSION."
-                  fi
-
-                  cd - || exit
-                  sleep 10
+                if semver gt "$NEW_VERSION" "$NPM_VERSION"; then
+                  npm publish --access public
+                  echo "Published $PACKAGE_NAME@$NEW_VERSION"
+                else
+                  echo "Skipping publish for $PACKAGE_NAME: $NEW_VERSION is not greater than $NPM_VERSION."
                 fi
+
+                cd - || exit
+                sleep 10
               done
