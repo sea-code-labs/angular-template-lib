@@ -147,6 +147,7 @@ pipelines:
             - echo "Installing dependencies..."
             - npm install
             - npm install -g @angular/cli
+            - apt-get update && apt-get install -y jq
 
       - step:
           # Run tests to validate the changes on the develop branch
@@ -239,6 +240,7 @@ pipelines:
             - echo "Installing dependencies..."
             - npm install
             - npm install -g @angular/cli
+            - apt-get update && apt-get install -y jq
 
       - step:
           # Run tests to validate the changes on the main branch
