@@ -96,41 +96,78 @@ pipelines:
     # Branch feature-* (push)
     feature-*:
       - step:
-          name: Env
+          name: Build & Publish Prod
           script:
-            - printenv
-
-      - step:
-          # Validate that the branch name starts with 'feature-'
-          name: Validate Branch Name
-          script:
-            - echo "Validating branch name..."
-            - |
-              # Ensure the branch name starts with 'feature-'
-              if [[ ! "$BITBUCKET_BRANCH" =~ ^feature- ]]; then
-                echo "Error: Branch name must start with 'feature-'."
-                exit 1
-              fi
-
-              echo "Branch name validation passed."
-
-      - step:
-          # Install dependencies and save cache for subsequent steps
-          name: Install Dependencies and Cache
-          caches:
-            - node
-          script:
-            - echo "Installing dependencies..."
+            - npm config set @sea-code-themes:registry https://registry.npmjs.org/
+            - npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
+            - apt-get update && apt-get install -y jq
             - npm install
+            - npm install -g @angular/cli semver
+            - |
+              for lib in projects/libs/*; do
+                if [ -d "$lib" ] && [ -f "$lib/package.json" ]; then
+                  cd "$lib" || exit
 
-      - step:
-          # Run tests to validate the changes on the feature branch
-          name: Run Tests
-          caches:
-            - node
-          script:
-            - echo "Running tests..."
-            - npx ng test --watch=false
+                  npm cache clean --force
+                  npm install
+
+                  PACKAGE_NAME=$(jq -r .name package.json)
+                  # Fetch the current version from npm registry
+                  NPM_VERSION=$(npm show $PACKAGE_NAME version --registry https://registry.npmjs.org/ 2>/dev/null || echo "0.0.0")
+
+                  ng build --configuration production
+                  npm version patch --no-git-tag-version
+
+                  NEW_VERSION=$(jq -r .version package.json)
+
+                  # Compare versions using semver
+                  if semver gt "$NEW_VERSION" "$NPM_VERSION"; then
+                    npm publish --access public
+                    echo "Published $PACKAGE_NAME@$NEW_VERSION"
+                  else
+                    echo "Skipping publish for $PACKAGE_NAME: $NEW_VERSION is not greater than $NPM_VERSION."
+                  fi
+
+                  cd - || exit
+                  sleep 10
+                fi
+              done
+#      - step:
+#          name: Env
+#          script:
+#            - printenv
+#
+#      - step:
+#          # Validate that the branch name starts with 'feature-'
+#          name: Validate Branch Name
+#          script:
+#            - echo "Validating branch name..."
+#            - |
+#              # Ensure the branch name starts with 'feature-'
+#              if [[ ! "$BITBUCKET_BRANCH" =~ ^feature- ]]; then
+#                echo "Error: Branch name must start with 'feature-'."
+#                exit 1
+#              fi
+#
+#              echo "Branch name validation passed."
+#
+#      - step:
+#          # Install dependencies and save cache for subsequent steps
+#          name: Install Dependencies and Cache
+#          caches:
+#            - node
+#          script:
+#            - echo "Installing dependencies..."
+#            - npm install
+#
+#      - step:
+#          # Run tests to validate the changes on the feature branch
+#          name: Run Tests
+#          caches:
+#            - node
+#          script:
+#            - echo "Running tests..."
+#            - npx ng test --watch=false
 
     develop:
       - step:
@@ -201,6 +238,7 @@ pipelines:
                 if [ -d "$lib" ] && [ -f "$lib/package.json" ]; then
                   cd "$lib" || exit
 
+                  npm cache clean --force
                   npm install
 
                   PACKAGE_NAME=$(jq -r .name package.json)
@@ -280,6 +318,7 @@ pipelines:
                 if [ -d "$lib" ] && [ -f "$lib/package.json" ]; then
                   cd "$lib" || exit
 
+                  npm cache clean --force
                   npm install
 
                   PACKAGE_NAME=$(jq -r .name package.json)
