@@ -1,4 +1,4 @@
-# Angular Template Lib
+# Template Angular Lib
 
 ## Introduction
 
@@ -47,7 +47,7 @@ npm run scripts:grant:access
 ### Default Project Structure
 
 ```text
-angular-template-lib/
+template-angular-lib/
 ├── .husky
 │   ├── commit-msg
 │   ├── pre-commit
