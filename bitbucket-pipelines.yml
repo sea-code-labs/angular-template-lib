@@ -203,7 +203,7 @@ pipelines:
                   npm install
 
                   PACKAGE_NAME=$(jq -r .name package.json)
-                  NPM_VERSION=$(npm show $PACKAGE_NAME version 2>/dev/null || echo "0.0.1")
+                  NPM_VERSION=$(npm show $PACKAGE_NAME version 2>/dev/null || echo "0.0.0")
 
                   if [ "$NPM_VERSION" = "0.0.0" ]; then
                     echo "Skipping dev publish for $PACKAGE_NAME: Package does not exist on npm."
@@ -279,7 +279,7 @@ pipelines:
                   npm install
 
                   PACKAGE_NAME=$(jq -r .name package.json)
-                  NPM_VERSION=$(npm show $PACKAGE_NAME version 2>/dev/null || echo "0.0.1")
+                  NPM_VERSION=$(npm show $PACKAGE_NAME version 2>/dev/null || echo "0.0.0")
 
                   ng build --configuration production
                   npm version patch --no-git-tag-version
