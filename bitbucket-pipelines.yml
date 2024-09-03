@@ -108,12 +108,11 @@ pipelines:
                 if [ -d "$lib" ] && [ -f "$lib/package.json" ]; then
                   cd "$lib" || exit
 
-                  npm cache clean --force
                   npm install
 
                   PACKAGE_NAME=$(jq -r .name package.json)
                   # Fetch the current version from npm registry
-                  NPM_VERSION=$(npm show $PACKAGE_NAME version --registry https://registry.npmjs.org/ 2>/dev/null)
+                  NPM_VERSION=$(npm show $PACKAGE_NAME version/ 2>/dev/null)
 
                   if [ -z "$NPM_VERSION" ]; then
                     NPM_VERSION="0.0.0"
