@@ -182,11 +182,11 @@ pipelines:
           script:
             - echo "Cloning Bitbucket repository as a bare clone..."
             # Perform a bare clone of the Bitbucket repository
-            - git clone --bare git@bitbucket.org:sea-code-labs/angular-template-lib.git
-            - cd angular-template-lib.git
+            - git clone --bare git@bitbucket.org:sea-code-labs/template-angular-lib.git
+            - cd template-angular-lib.git
             - echo "Pushing to GitHub mirror..."
             # Push all refs to the GitHub mirror
-            - git push --mirror git@github.com:sea-code-labs/angular-template-lib.git
+            - git push --mirror git@github.com:sea-code-labs/template-angular-lib.git
 
       - step:
           name: Build & Publish Dev
@@ -240,11 +240,11 @@ pipelines:
           script:
             - echo "Cloning Bitbucket repository as a bare clone..."
             # Perform a bare clone of the Bitbucket repository
-            - git clone --bare git@bitbucket.org:sea-code-labs/angular-template-lib.git
-            - cd angular-template-lib.git
+            - git clone --bare git@bitbucket.org:sea-code-labs/template-angular-lib.git
+            - cd template-angular-lib.git
             - echo "Pushing to GitHub mirror..."
             # Push all refs to the GitHub mirror
-            - git push --mirror git@github.com:sea-code-labs/angular-template-lib.git
+            - git push --mirror git@github.com:sea-code-labs/template-angular-lib.git
 
       - step:
           name: Build & Publish Prod
