@@ -96,74 +96,41 @@ pipelines:
     # Branch feature-* (push)
     feature-*:
       - step:
-          name: Build & Publish Prod
+          name: Env
           script:
-            - npm config set @sea-code-themes:registry https://registry.npmjs.org/
-            - npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
-            - apt-get update && apt-get install -y jq
-            - npm install
-            - npm install -g @angular/cli semver
+            - printenv
+
+      - step:
+          # Validate that the branch name starts with 'feature-'
+          name: Validate Branch Name
+          script:
+            - echo "Validating branch name..."
             - |
-              find projects/libs -maxdepth 1 -mindepth 1 -type d | while read -r lib; do
-                [ -f "$lib/package.json" ] || continue
+              # Ensure the branch name starts with 'feature-'
+              if [[ ! "$BITBUCKET_BRANCH" =~ ^feature- ]]; then
+                echo "Error: Branch name must start with 'feature-'."
+                exit 1
+              fi
 
-                cd "$lib" || exit
-                npm install
+              echo "Branch name validation passed."
 
-                PACKAGE_NAME=$(jq -r .name package.json)
-                NPM_VERSION=$(npm show "$PACKAGE_NAME" version 2>/dev/null || echo "0.0.0")
+      - step:
+          # Install dependencies and save cache for subsequent steps
+          name: Install Dependencies and Cache
+          caches:
+            - node
+          script:
+            - echo "Installing dependencies..."
+            - npm install
 
-                ng build --configuration production
-                npm version patch --no-git-tag-version
-
-                NEW_VERSION=$(jq -r .version package.json)
-
-                if semver gt "$NEW_VERSION" "$NPM_VERSION"; then
-                  npm publish --access public
-                  echo "Published $PACKAGE_NAME@$NEW_VERSION"
-                else
-                  echo "Skipping publish for $PACKAGE_NAME: $NEW_VERSION is not greater than $NPM_VERSION."
-                fi
-
-                cd - || exit
-                sleep 10
-              done
-#      - step:
-#          name: Env
-#          script:
-#            - printenv
-#
-#      - step:
-#          # Validate that the branch name starts with 'feature-'
-#          name: Validate Branch Name
-#          script:
-#            - echo "Validating branch name..."
-#            - |
-#              # Ensure the branch name starts with 'feature-'
-#              if [[ ! "$BITBUCKET_BRANCH" =~ ^feature- ]]; then
-#                echo "Error: Branch name must start with 'feature-'."
-#                exit 1
-#              fi
-#
-#              echo "Branch name validation passed."
-#
-#      - step:
-#          # Install dependencies and save cache for subsequent steps
-#          name: Install Dependencies and Cache
-#          caches:
-#            - node
-#          script:
-#            - echo "Installing dependencies..."
-#            - npm install
-#
-#      - step:
-#          # Run tests to validate the changes on the feature branch
-#          name: Run Tests
-#          caches:
-#            - node
-#          script:
-#            - echo "Running tests..."
-#            - npx ng test --watch=false
+      - step:
+          # Run tests to validate the changes on the feature branch
+          name: Run Tests
+          caches:
+            - node
+          script:
+            - echo "Running tests..."
+            - npx ng test --watch=false
 
     develop:
       - step:
@@ -230,37 +197,33 @@ pipelines:
             - npm install
             - apt-get update && apt-get install -y jq
             - |
-              for lib in projects/libs/*; do
-                if [ -d "$lib" ] && [ -f "$lib/package.json" ]; then
-                  cd "$lib" || exit
+              find projects/libs -maxdepth 1 -mindepth 1 -type d | while read -r lib; do
+                [ -f "$lib/package.json" ] || continue
 
-                  npm cache clean --force
-                  npm install
+                cd "$lib" || exit
+                npm install
 
-                  PACKAGE_NAME=$(jq -r .name package.json)
-                  # Fetch the current version from npm registry
-                  NPM_VERSION=$(npm show $PACKAGE_NAME version --registry https://registry.npmjs.org/ 2>/dev/null || echo "0.0.0")
+                PACKAGE_NAME=$(jq -r .name package.json)
+                NPM_VERSION=$(npm show "$PACKAGE_NAME" version --registry https://registry.npmjs.org/ 2>/dev/null || echo "0.0.0")
 
-                  if [ "$NPM_VERSION" = "0.0.0" ]; then
-                    echo "Skipping dev publish for $PACKAGE_NAME: Package does not exist on npm."
+                if [ "$NPM_VERSION" = "0.0.0" ]; then
+                  echo "Skipping dev publish for $PACKAGE_NAME: Package does not exist on npm."
+                else
+                  ng build --configuration production
+                  npm version prerelease --preid=dev --no-git-tag-version
+
+                  NEW_VERSION=$(jq -r .version package.json)
+
+                  if semver gt "$NEW_VERSION" "$NPM_VERSION"; then
+                    npm publish --access public --tag dev
+                    echo "Published $PACKAGE_NAME@$NEW_VERSION with tag dev"
                   else
-                    ng build --configuration production
-                    npm version prerelease --preid=dev --no-git-tag-version
-
-                    NEW_VERSION=$(jq -r .version package.json)
-
-                    # Compare versions using semver
-                    if semver gt "$NEW_VERSION" "$NPM_VERSION"; then
-                      npm publish --access public --tag dev
-                      echo "Published $PACKAGE_NAME@$NEW_VERSION with tag dev"
-                    else
-                      echo "Skipping dev publish for $PACKAGE_NAME: $NEW_VERSION is not greater than $NPM_VERSION."
-                    fi
+                    echo "Skipping dev publish for $PACKAGE_NAME: $NEW_VERSION is not greater than $NPM_VERSION."
                   fi
-
-                  cd - || exit
-                  sleep 10
                 fi
+
+                cd - || exit
+                sleep 10
               done
 
     main:
@@ -310,31 +273,27 @@ pipelines:
             - npm install
             - npm install -g @angular/cli semver
             - |
-              for lib in projects/libs/*; do
-                if [ -d "$lib" ] && [ -f "$lib/package.json" ]; then
-                  cd "$lib" || exit
+              find projects/libs -maxdepth 1 -mindepth 1 -type d | while read -r lib; do
+                [ -f "$lib/package.json" ] || continue
 
-                  npm cache clean --force
-                  npm install
+                cd "$lib" || exit
+                npm install
 
-                  PACKAGE_NAME=$(jq -r .name package.json)
-                  # Fetch the current version from npm registry
-                  NPM_VERSION=$(npm show $PACKAGE_NAME version --registry https://registry.npmjs.org/ 2>/dev/null || echo "0.0.0")
+                PACKAGE_NAME=$(jq -r .name package.json)
+                NPM_VERSION=$(npm show "$PACKAGE_NAME" version 2>/dev/null || echo "0.0.0")
 
-                  ng build --configuration production
-                  npm version patch --no-git-tag-version
+                ng build --configuration production
+                npm version patch --no-git-tag-version
 
-                  NEW_VERSION=$(jq -r .version package.json)
+                NEW_VERSION=$(jq -r .version package.json)
 
-                  # Compare versions using semver
-                  if semver gt "$NEW_VERSION" "$NPM_VERSION"; then
-                    npm publish --access public
-                    echo "Published $PACKAGE_NAME@$NEW_VERSION"
-                  else
-                    echo "Skipping publish for $PACKAGE_NAME: $NEW_VERSION is not greater than $NPM_VERSION."
-                  fi
-
-                  cd - || exit
-                  sleep 10
+                if semver gt "$NEW_VERSION" "$NPM_VERSION"; then
+                  npm publish --access public
+                  echo "Published $PACKAGE_NAME@$NEW_VERSION"
+                else
+                  echo "Skipping publish for $PACKAGE_NAME: $NEW_VERSION is not greater than $NPM_VERSION."
                 fi
+
+                cd - || exit
+                sleep 10
               done
