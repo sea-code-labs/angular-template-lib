@@ -104,36 +104,29 @@ pipelines:
             - npm install
             - npm install -g @angular/cli semver
             - |
-              for lib in projects/libs/*; do
-                if [ -d "$lib" ] && [ -f "$lib/package.json" ]; then
-                  cd "$lib" || exit
+              find projects/libs -maxdepth 1 -mindepth 1 -type d | while read -r lib; do
+                [ -f "$lib/package.json" ] || continue
 
-                  npm install
+                cd "$lib" || exit
+                npm install
 
-                  PACKAGE_NAME=$(jq -r .name package.json)
-                  # Fetch the current version from npm registry
-                  NPM_VERSION=$(npm show $PACKAGE_NAME version/ 2>/dev/null)
+                PACKAGE_NAME=$(jq -r .name package.json)
+                NPM_VERSION=$(npm show "$PACKAGE_NAME" version 2>/dev/null || echo "0.0.0")
 
-                  if [ -z "$NPM_VERSION" ]; then
-                    NPM_VERSION="0.0.0"
-                  fi
+                ng build --configuration production
+                npm version patch --no-git-tag-version
 
-                  ng build --configuration production
-                  npm version patch --no-git-tag-version
+                NEW_VERSION=$(jq -r .version package.json)
 
-                  NEW_VERSION=$(jq -r .version package.json)
-
-                  # Compare versions using semver
-                  if semver gt "$NEW_VERSION" "$NPM_VERSION"; then
-                    npm publish --access public
-                    echo "Published $PACKAGE_NAME@$NEW_VERSION"
-                  else
-                    echo "Skipping publish for $PACKAGE_NAME: $NEW_VERSION is not greater than $NPM_VERSION."
-                  fi
-
-                  cd - || exit
-                  sleep 10
+                if semver gt "$NEW_VERSION" "$NPM_VERSION"; then
+                  npm publish --access public
+                  echo "Published $PACKAGE_NAME@$NEW_VERSION"
+                else
+                  echo "Skipping publish for $PACKAGE_NAME: $NEW_VERSION is not greater than $NPM_VERSION."
                 fi
+
+                cd - || exit
+                sleep 10
               done
 #      - step:
 #          name: Env
