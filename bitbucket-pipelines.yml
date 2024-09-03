@@ -146,6 +146,7 @@ pipelines:
           script:
             - echo "Installing dependencies..."
             - npm install
+            - npm install -g @angular/cli
 
       - step:
           # Run tests to validate the changes on the develop branch
@@ -193,16 +194,31 @@ pipelines:
           script:
             - npm config set @sea-code-themes:registry https://registry.npmjs.org/
             - npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
-            - npm install
-            - npm install -g @angular/cli
             - |
               for lib in projects/libs/*; do
                 if [ -f "$lib/package.json" ]; then
                   cd "$lib"
                   npm install
-                  ng build --configuration production
-                  npm version prerelease --preid=dev --no-git-tag-version
-                  npm publish --access public --tag dev
+
+                  PACKAGE_NAME=$(jq -r .name package.json)
+                  NPM_VERSION=$(npm show $PACKAGE_NAME version 2>/dev/null || echo "0.0.1")
+
+                  if [ "$NPM_VERSION" = "0.0.0" ]; then
+                    echo "Skipping dev publish for $PACKAGE_NAME: Package does not exist on npm."
+                  else
+                    ng build --configuration production
+                    npm version prerelease --preid=dev --no-git-tag-version
+
+                    NEW_VERSION=$(jq -r .version package.json)
+
+                    if [ "$(printf '%s\n' "$NEW_VERSION" "$NPM_VERSION" | sort -V | head -n1)" = "$NPM_VERSION" ]; then
+                      echo "Skipping dev publish for $PACKAGE_NAME: $NEW_VERSION is not greater than $NPM_VERSION."
+                    else
+                      npm publish --access public --tag dev
+                      echo "Published $PACKAGE_NAME@$NEW_VERSION with tag dev"
+                    fi
+                  fi
+
                   cd -
                   sleep 10
                 fi
@@ -222,6 +238,7 @@ pipelines:
           script:
             - echo "Installing dependencies..."
             - npm install
+            - npm install -g @angular/cli
 
       - step:
           # Run tests to validate the changes on the main branch
@@ -251,16 +268,27 @@ pipelines:
           script:
             - npm config set @sea-code-themes:registry https://registry.npmjs.org/
             - npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
-            - npm install
-            - npm install -g @angular/cli
             - |
               for lib in projects/libs/*; do
                 if [ -f "$lib/package.json" ]; then
                   cd "$lib"
                   npm install
+
+                  PACKAGE_NAME=$(jq -r .name package.json)
+                  NPM_VERSION=$(npm show $PACKAGE_NAME version 2>/dev/null || echo "0.0.1")
+
                   ng build --configuration production
                   npm version patch --no-git-tag-version
-                  npm publish --access public
+
+                  NEW_VERSION=$(jq -r .version package.json)
+
+                  if [ "$(printf '%s\n' "$NEW_VERSION" "$NPM_VERSION" | sort -V | head -n1)" = "$NPM_VERSION" ]; then
+                    echo "Skipping publish for $PACKAGE_NAME: $NEW_VERSION is not greater than $NPM_VERSION."
+                  else
+                    npm publish --access public
+                    echo "Published $PACKAGE_NAME@$NEW_VERSION"
+                  fi
+
                   cd -
                   sleep 10
                 fi
