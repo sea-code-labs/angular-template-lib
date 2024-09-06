@@ -1,7 +1,6 @@
 {
   "name": "@sea-code-themes/test-lib",
-  "version": "0.1.0",
-  "peerDependencies": {},
+  "version": "0.0.0",
   "dependencies": {
     "tslib": "~2.3.0"
   },

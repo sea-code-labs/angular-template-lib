@@ -11,7 +11,7 @@
     "stylelint": "./scripts/stylelint.sh",
     "eslint": "npx eslint --fix .",
     "prettier": "npx prettier --write .",
-    "format": "npm run prettier && npm run eslint && npm run stylelint",
+    "format": "npm run prettier && npm run eslint",
     "-----SCRIPTS-----": "exit 0",
     "scripts:grant:access": "chmod -R +x scripts/\n",
     "-----HUSKY-----": "exit 0",
