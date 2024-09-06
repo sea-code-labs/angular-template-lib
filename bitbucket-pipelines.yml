@@ -161,7 +161,12 @@ pipelines:
                   cd ../../../ || exit
                   cd "dist/$(basename "$lib")" || exit
                   npm version prerelease --preid=dev --no-git-tag-version
-                  npm publish --access public --tag dev
+
+                  if npm publish --access public --tag dev 2>&1 | grep -q 'cannot publish over the previously published versions'; then
+                    echo "Version already exists, skipping publish for $(basename "$lib")"
+                  else
+                    echo "Published $(basename "$lib")"
+                  fi
 
                   cd - || exit
                   sleep 10
@@ -225,7 +230,12 @@ pipelines:
                   cd "../../../" || exit
                   cd "dist/$(basename "$lib")" || exit
                   npm version patch --no-git-tag-version
-                  npm publish --access public
+
+                  if npm publish --access public --tag dev 2>&1 | grep -q 'cannot publish over the previously published versions'; then
+                    echo "Version already exists, skipping publish for $(basename "$lib")"
+                  else
+                    echo "Published $(basename "$lib")"
+                  fi
 
                   cd - || exit
                   sleep 10
