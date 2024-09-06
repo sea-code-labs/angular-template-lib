@@ -58,13 +58,11 @@ template-angular-lib/
 │   ├── build-libs.js
 │   ├── create-lib.js
 │   ├── git-sync.sh
-│   ├── stylelint.sh
 ├── .browserslistrc
 ├── .editorconfig
 ├── .gitignore
 ├── .lintstagedrc
 ├── .prettierrc
-├── .stylelintrc
 ├── angular.json
 ├── bitbucket-pipelines.yml
 ├── commitlint.config.ts
