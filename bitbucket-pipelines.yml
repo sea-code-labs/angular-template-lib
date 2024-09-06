@@ -231,7 +231,7 @@ pipelines:
                   cd "dist/$(basename "$lib")" || exit
                   npm version patch --no-git-tag-version
 
-                  if npm publish --access public --tag dev 2>&1 | grep -q 'cannot publish over the previously published versions'; then
+                  if npm publish --access public 2>&1 | grep -q 'cannot publish over the previously published versions'; then
                     echo "Version already exists, skipping publish for $(basename "$lib")"
                   else
                     echo "Published $(basename "$lib")"
