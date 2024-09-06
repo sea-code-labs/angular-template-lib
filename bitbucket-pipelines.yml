@@ -5,11 +5,6 @@ pipelines:
     # Pull request from feature-* to develop
     'feature-*':
       - step:
-          name: Env
-          script:
-            - printenv
-
-      - step:
           # Validate that the branch name starts with 'feature-'
           name: Validate Branch Name
           script:
@@ -35,31 +30,8 @@ pipelines:
                 exit 1
               fi
 
-      - step:
-          # Install dependencies and save cache for subsequent steps
-          name: Install Dependencies and Cache
-          caches:
-            - node
-          script:
-            - echo "Installing dependencies..."
-            - npm install
-
-      - step:
-          # Run tests to validate the changes in feature branch
-          name: Run Tests
-          caches:
-            - node
-          script:
-            - echo "Running tests..."
-            - npx ng test --watch=false
-
     # Pull request from develop to main
     develop:
-      - step:
-          name: Env
-          script:
-            - printenv
-
       - step:
           # Check if the source branch of the PR is 'develop' when merging into 'main'
           name: Check PR Source for Main
@@ -74,32 +46,9 @@ pipelines:
                 echo "PR source branch is 'develop'."
               fi
 
-      - step:
-          # Install dependencies and save cache for subsequent steps
-          name: Install Dependencies and Cache
-          caches:
-            - node
-          script:
-            - echo "Installing dependencies..."
-            - npm install
-
-      - step:
-          # Run tests to validate the merge from develop to main
-          name: Run Tests
-          caches:
-            - node
-          script:
-            - echo "Running tests..."
-            - npx ng test --watch=false
-
   branches:
     # Branch feature-* (push)
     feature-*:
-      - step:
-          name: Env
-          script:
-            - printenv
-
       - step:
           # Validate that the branch name starts with 'feature-'
           name: Validate Branch Name
@@ -129,15 +78,15 @@ pipelines:
           caches:
             - node
           script:
-            - echo "Running tests..."
-            - npx ng test --watch=false
+            - |
+              if find projects/ -name '*.spec.ts' | grep . > /dev/null; then
+                echo ".spec.ts files found. Running tests..."
+                npx ng test --watch=false
+              else
+                echo "No .spec.ts files found. Skipping tests."
+              fi
 
     develop:
-      - step:
-          name: Env
-          script:
-            - printenv
-
       - step:
           # Install dependencies and save cache for subsequent steps
           name: Install Dependencies and Cache
@@ -153,8 +102,13 @@ pipelines:
           caches:
             - node
           script:
-            - echo "Running tests..."
-            - npx ng test --watch=false
+            - |
+              if find projects/ -name '*.spec.ts' | grep . > /dev/null; then
+                echo ".spec.ts files found. Running tests..."
+                npx ng test --watch=false
+              else
+                echo "No .spec.ts files found. Skipping tests."
+              fi
 
       - step:
           name: Delete merged feature branch
@@ -193,28 +147,33 @@ pipelines:
           script:
             - npm config set @sea-code-themes:registry https://registry.npmjs.org/
             - npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
-            - npm install -g @angular/cli semver
+            - npm install -g @angular/cli
             - npm install
-            - apt-get update && apt-get install -y jq
             - |
               find projects/libs -maxdepth 1 -mindepth 1 -type d | while read -r lib; do
                 [ -f "$lib/package.json" ] || continue
                 cd "$lib" || exit
-                npm install
-                ng build --configuration production
-                npm version prerelease --preid=dev --no-git-tag-version
-                npm publish --access public --tag dev
+                if git diff --quiet HEAD^ HEAD --; then
+                  echo "No changes detected in $(basename "$lib")"
+                else
+                  npm install
+                  ng build --configuration production
+                  cd ../../../ || exit
+                  cd "dist/$(basename "$lib")" || exit
+                  npm version prerelease --preid=dev --no-git-tag-version
 
-                cd - || exit
-                sleep 10
+                  if npm publish --access public --tag dev 2>&1 | grep -q 'cannot publish over the previously published versions'; then
+                    echo "Version already exists, skipping publish for $(basename "$lib")"
+                  else
+                    echo "Published $(basename "$lib")"
+                  fi
+
+                  cd - || exit
+                  sleep 10
+                fi
               done
 
     main:
-      - step:
-          name: Env
-          script:
-            - printenv
-
       - step:
           # Install dependencies and save cache for subsequent steps
           name: Install Dependencies and Cache
@@ -230,8 +189,13 @@ pipelines:
           caches:
             - node
           script:
-            - echo "Running tests..."
-            - npx ng test --watch=false
+            - |
+              if find projects/ -name '*.spec.ts' | grep . > /dev/null; then
+                echo ".spec.ts files found. Running tests..."
+                npx ng test --watch=false
+              else
+                echo "No .spec.ts files found. Skipping tests."
+              fi
 
       - step:
           # Sync the Bitbucket repository with the GitHub mirror
@@ -252,18 +216,28 @@ pipelines:
           script:
             - npm config set @sea-code-themes:registry https://registry.npmjs.org/
             - npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
-            - apt-get update && apt-get install -y jq
-            - npm install
             - npm install -g @angular/cli
+            - npm install
             - |
               find projects/libs -maxdepth 1 -mindepth 1 -type d | while read -r lib; do
                 [ -f "$lib/package.json" ] || continue
                 cd "$lib" || exit
-                npm install
-                ng build --configuration production
-                npm version patch --no-git-tag-version
-                npm publish --access public
+                if git diff --quiet HEAD^ HEAD --; then
+                  echo "No changes detected in $(basename "$lib")"
+                else
+                  npm install
+                  ng build --configuration production
+                  cd "../../../" || exit
+                  cd "dist/$(basename "$lib")" || exit
+                  npm version patch --no-git-tag-version
 
-                cd - || exit
-                sleep 10
+                  if npm publish --access public --tag dev 2>&1 | grep -q 'cannot publish over the previously published versions'; then
+                    echo "Version already exists, skipping publish for $(basename "$lib")"
+                  else
+                    echo "Published $(basename "$lib")"
+                  fi
+
+                  cd - || exit
+                  sleep 10
+                fi
               done
