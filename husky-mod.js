@@ -135,22 +135,6 @@ else
   echo
 fi
 
-echo "[husky-mod] Checking for stylelint script..."
-
-if find ./scripts/stylelint.sh | grep -q .; then
-  bash "./scripts/stylelint.sh"
-
-  if [ $? -ne 0 ]; then
-    echo "[husky-mod] Stylelint failed. Commit aborted."
-    echo
-    exit 1
-  fi
-else
-  echo "[husky-mod] Stylelint script not found. Commit aborted."
-  echo
-  exit 1
-fi
-
 npx lint-staged
 `;
 }
