@@ -136,38 +136,23 @@ pipelines:
           script:
             - echo "Cloning Bitbucket repository as a bare clone..."
             # Perform a bare clone of the Bitbucket repository
-<<<<<<< HEAD
-            - git clone --bare git@bitbucket.org:sea-code-labs/lib-design-tokens.git
-            - cd lib-design-tokens.git
-            - echo "Pushing to GitHub mirror..."
-            # Push all refs to the GitHub mirror
-            - git push --mirror git@github.com:sea-code-labs/lib-design-tokens.git
-=======
             - git clone --bare git@bitbucket.org:sea-code-labs/template-angular-lib.git
             - cd template-angular-lib.git
             - echo "Pushing to GitHub mirror..."
             # Push all refs to the GitHub mirror
             - git push --mirror git@github.com:sea-code-labs/template-angular-lib.git
->>>>>>> origin/develop
 
       - step:
           name: Build & Publish Dev
           script:
             - npm config set @sea-code-themes:registry https://registry.npmjs.org/
             - npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
-<<<<<<< HEAD
             - npm install -g @angular/cli
             - npm install
-=======
-            - npm install -g @angular/cli semver
-            - npm install
-            - apt-get update && apt-get install -y jq
->>>>>>> origin/develop
             - |
               find projects/libs -maxdepth 1 -mindepth 1 -type d | while read -r lib; do
                 [ -f "$lib/package.json" ] || continue
                 cd "$lib" || exit
-<<<<<<< HEAD
                 if git diff --quiet HEAD^ HEAD --; then
                   echo "No changes detected in $(basename "$lib")"
                 else
@@ -181,15 +166,6 @@ pipelines:
                   cd - || exit
                   sleep 10
                 fi
-=======
-                npm install
-                ng build --configuration production
-                npm version prerelease --preid=dev --no-git-tag-version
-                npm publish --access public --tag dev
-
-                cd - || exit
-                sleep 10
->>>>>>> origin/develop
               done
 
     main:
@@ -224,33 +200,23 @@ pipelines:
           script:
             - echo "Cloning Bitbucket repository as a bare clone..."
             # Perform a bare clone of the Bitbucket repository
-<<<<<<< HEAD
-            - git clone --bare git@bitbucket.org:sea-code-labs/lib-design-tokens.git
-            - cd lib-design-tokens.git
-            - echo "Pushing to GitHub mirror..."
-            # Push all refs to the GitHub mirror
-            - git push --mirror git@github.com:sea-code-labs/lib-design-tokens.git
-=======
             - git clone --bare git@bitbucket.org:sea-code-labs/template-angular-lib.git
             - cd template-angular-lib.git
             - echo "Pushing to GitHub mirror..."
             # Push all refs to the GitHub mirror
             - git push --mirror git@github.com:sea-code-labs/template-angular-lib.git
->>>>>>> origin/develop
 
       - step:
           name: Build & Publish Prod
           script:
             - npm config set @sea-code-themes:registry https://registry.npmjs.org/
             - npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
-            - apt-get update && apt-get install -y jq
-            - npm install
             - npm install -g @angular/cli
+            - npm install
             - |
               find projects/libs -maxdepth 1 -mindepth 1 -type d | while read -r lib; do
                 [ -f "$lib/package.json" ] || continue
                 cd "$lib" || exit
-<<<<<<< HEAD
                 if git diff --quiet HEAD^ HEAD --; then
                   echo "No changes detected in $(basename "$lib")"
                 else
@@ -264,13 +230,4 @@ pipelines:
                   cd - || exit
                   sleep 10
                 fi
-=======
-                npm install
-                ng build --configuration production
-                npm version patch --no-git-tag-version
-                npm publish --access public
-
-                cd - || exit
-                sleep 10
->>>>>>> origin/develop
               done
